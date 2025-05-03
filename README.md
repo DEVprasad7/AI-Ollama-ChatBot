@@ -13,15 +13,15 @@ AI-Ollama ChatBot is a lightweight, locally hosted chatbot built using Python an
 
 <!-- Add your screenshots below -->
 <p align="center">
-  <img src="images/screenshot1.png" alt="ChatBot Home UI" width="600"/>
+  <img src="images/screenshot1.png" alt="Authentication Page" width="600"/>
   <br/>
-  <em>Streamlit-based UI for chat interaction</em>
+  <em>SQLite3-powered authentication screen</em>
 </p>
 
 <p align="center">
-  <img src="images/screenshot2.png" alt="Authentication Page" width="600"/>
+  <img src="images/screenshot2.png" alt="ChatBot Home UI" width="600"/>
   <br/>
-  <em>SQLite3-powered authentication screen</em>
+  <em>Streamlit-based UI for chat interaction</em>
 </p>
 
 ---
