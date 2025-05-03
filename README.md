@@ -42,3 +42,16 @@ AI-Ollama ChatBot is a lightweight, locally hosted chatbot built using Python an
    ```bash
    git clone https://github.com/DEVprasad7/AI-Ollama-ChatBot.git
    cd AI-Ollama-ChatBot
+
+2. Installing Dependencies:
+   ```bash
+   pip install -r requirements.txt
+
+3. Ollama LLM Installation:
+    Install Ollama On Your Local Machine : https://ollama.com
+
+    ```bash
+    ollama pull <model.name>
+
+    ollama serve
+    
