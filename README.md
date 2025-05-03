@@ -53,5 +53,6 @@ AI-Ollama ChatBot is a lightweight, locally hosted chatbot built using Python an
     ```bash
     ollama pull <model.name>
 
+4. Starting Ollama:
+    ```bash
     ollama serve
-    
