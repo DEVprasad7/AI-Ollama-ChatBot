@@ -36,7 +36,8 @@ AI-Gemini ChatBot is a powerful chatbot built using Python and Streamlit, powere
 - 💾 Conversation history and export/import
 - 👤 Multi-user support with isolated conversations
 - ✏️ Rename and delete conversations
-- 👍👎 Feedback system for responses
+- 👍 Feedback system for responses
+- 🔗 Deployed On Streamlit Community Cloud : https://geminichatai.streamlit.app/
 
 ---
 
