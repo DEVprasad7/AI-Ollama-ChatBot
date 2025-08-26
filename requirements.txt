@@ -1,10 +1,8 @@
 streamlit
-sqlite3
-langchain_ollama
-langchain_core
 pandas
 PyPDF2
 docx2txt
-bs4
-BeautifulSoup
 python-dotenv
+google-generativeai
+langchain-google-genai
+langchain-core

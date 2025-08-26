@@ -8,16 +8,16 @@ import sqlite3
 import hashlib
 import uuid
 from datetime import datetime
-from langchain_ollama import OllamaLLM
+import google.generativeai as genai
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
-from web_search import web_search_toggle, perform_web_search, cleanup_web_search
+import dotenv
 import pandas as pd
 import PyPDF2
 import docx2txt
 
-
-
-
+# Load environment variables from .env file
+dotenv.load_dotenv()
 
 # Initialize the database
 def init_db():
@@ -76,36 +76,7 @@ def register_user(full_name, username, password):
         conn.close()
         return False
 
-def needs_web_search(query):
-    """Determine if a query likely needs up-to-date information from the web"""
-    # Define patterns that suggest a need for current information
-    current_info_patterns = [
-        query,
-        r'latest', r'recent', r'current', r'news', r'today', 
-        r'update', r'what is happening', r'how to', r'who is',
-        r'weather', r'stock', r'price', r'event', r'information about',r'find out',
-        r'find', r'latest news', r'latest update', r'current events',r'time',
-        r'current time', r'current date', r'latest trends', r'latest developments',r'latest information',
-        r"Many", r"most", r"all", r"some", r"few", r"several",
-        r"today", r"yesterday", r"tomorrow", r"this week", r"this month",
-        r"New", r"Old", r"original",r"today's", r"yesterday's", r"tomorrow's",
-        r"today's", r"this week's", r"this month's", r"this year's", r"How", r"last"
-    ]
-    
-    # Check for date or time references
-    date_patterns = [
-        r'\b202[0-9]\b',  # Years 2020-2029
-        r'\b(january|february|march|april|may|june|july|august|september|october|november|december)\b',
-        r'\b(today|yesterday|tomorrow|last week|next week|this month|last month|this year)\b'
-    ]
-    
-    # Check if query matches any patterns
-    query_lower = query.lower()
-    for pattern in current_info_patterns + date_patterns:
-        if re.search(pattern, query_lower):
-            return True
-    
-    return False
+
 
 def main():
     # Initialize database
@@ -168,7 +139,7 @@ def main():
     
     # Check if user is authenticated before showing the main app
     if not st.session_state.user_id:
-        st.title("Ollama-LLM AI")
+        st.title("Gemini AI ChatBot")
         st.info("Please login or register to use the application")
         return
     
@@ -322,7 +293,7 @@ def main():
             st.download_button(
                 label="Download JSON",
                 data=export_json,
-                file_name=f"ollama_chats_{datetime.now().strftime('%Y%m%d')}.json",
+                file_name=f"gemini_chats_{datetime.now().strftime('%Y%m%d')}.json",
                 mime="application/json"
             )
         
@@ -348,57 +319,30 @@ def main():
     current_file_content = current_conversation.get("file_content", "")
     
     # Set up the main title of the app
-    st.title("Ollama-LLM AI")
+    st.title("Gemini AI ChatBot")
 
-    # Toggle for web search - updated to use the new implementation
-    search_enabled = web_search_toggle()
+
     
-    # Initialize the LLM model
-    model = OllamaLLM(model="llama3.2")
+    # Initialize Google Gemini API
+    gemini_api_key = os.getenv("GOOGLE_API_KEY")
+    if not gemini_api_key:
+        st.error("Please set your GOOGLE_API_KEY environment variable")
+        return
     
-    # MODIFIED: Different prompt templates based on whether web search is enabled
-    standard_template = """
-        Answer the questions below.
-        You are a helpful assistant. You can answer questions based on the conversation history, any file content provided, and web search results when available.
-        Please provide a concise and accurate answer.
+    genai.configure(api_key=gemini_api_key)
+    model = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=gemini_api_key)
+    
+    # Prompt template for the AI assistant
+    template = """
+        You are a helpful AI assistant. Answer questions based on the conversation history and any file content provided.
+        Please provide concise and accurate answers.
 
-        Here is the conversation history: {history}
-
+        Conversation history: {history}
         File content (if any): {file_content}
-
-        Web search results (if any): {web_search_results}
-
         Question: {question}
 
         Answer:
         """
-    
-    web_search_template = """
-        You are an AI assistant tasked with answering questions strictly based on the provided web search results.  
-        You may use your own reasoning to interpret and organize the information, but you must not rely on prior knowledge beyond the search results.
-
-        Instructions:
-        - Use only the web search results to formulate your answer.
-        - If the web search results do not provide sufficient information to answer the question, respond with:  
-          "I don't have enough information from the web search results to answer this question."
-        - Do not invent, assume, or supplement missing information using your own knowledge.
-        - Only use the conversation history for context and continuity; do not derive factual answers from it.
-        - Refer to any attached file content **only if** it is directly relevant to the question.
-        - try to provide a concise answer with minimal elaboration.
-
-        Inputs:
-        - Conversation History (for context only): {history}
-        - File Content (if provided and relevant): {file_content}
-        - Web Search Results (primary information source): {web_search_results}
-        - User Question: {question}
-
-        Important:
-        - Base your response solely on information that is relevant to the question from the web search results.
-        - Maintain accuracy, clarity, and conciseness in your answers.
-
-        Response:
-
-                """
 
     def process_file(uploaded_file):
     
@@ -471,23 +415,8 @@ def main():
         # Format history for context
         history_text = "\n".join([f"{m['role']}: {m['content']}" for m in current_history])
     
-        # Check if web search is enabled and needed for this query
-        web_search_results = ""
-        use_web_search_template = False
-        
-        if st.session_state.get("web_search_enabled", False):
-            # Always perform web search when the feature is enabled
-            with st.spinner("Searching the web for relevant information..."):
-                web_search_results = perform_web_search(user_input)
-                # Use the web search template only if we got actual results
-                if web_search_results and "Web search is disabled" not in web_search_results:
-                    use_web_search_template = True
-    
-        # Choose the appropriate template based on web search results
-        if use_web_search_template:
-            prompt = ChatPromptTemplate.from_template(web_search_template)
-        else:
-            prompt = ChatPromptTemplate.from_template(standard_template)
+        # Create the prompt template
+        prompt = ChatPromptTemplate.from_template(template)
             
         # Create the chain with the selected template
         chain = prompt | model
@@ -496,14 +425,14 @@ def main():
         response = chain.invoke({
             "history": history_text, 
             "question": user_input,
-            "file_content": file_content,
-            "web_search_results": web_search_results
+            "file_content": file_content
         })
     
+        # Get the content from the response
+        full_response = response.content if hasattr(response, 'content') else str(response)
+        
         # Stream the response character by character for a better UX
-        full_response = ""
-        for char in response:
-            full_response += char
+        for char in full_response:
             yield char
             time.sleep(0.02)  # Small delay for streaming effect
     
@@ -634,7 +563,4 @@ def main():
                 )
 
 if __name__ == "__main__":
-    try:
-        main()
-    finally:
-        cleanup_web_search()
+    main()

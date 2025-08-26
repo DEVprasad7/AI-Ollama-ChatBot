@@ -1,10 +1,10 @@
-# AI-Ollama-ChatBot
-AI-Ollama ChatBot is a lightweight, locally hosted chatbot built using Python and Streamlit, powered by Ollama's LLM models. It processes user input in real time, performs intelligent text analysis, and delivers contextual responses. Ideal for AI research, learning, and offline experimentation.
+# AI-Gemini-ChatBot
+AI-Gemini ChatBot is a powerful chatbot built using Python and Streamlit, powered by Google's Gemini AI model. It processes user input in real time, performs intelligent text analysis, and delivers contextual responses with file upload support.
 
-<h1 align="center">🤖 AI-Ollama ChatBot</h1>
+<h1 align="center">🤖 AI-Gemini ChatBot</h1>
 
 <p align="center">
-  A locally hosted AI chatbot powered by Ollama's LLMs, built with Python, Streamlit, SQLite3, SerpAPI, and SerperAPI.
+  An AI chatbot powered by Google Gemini, built with Python, Streamlit, and SQLite3.
 </p>
 
 ---
@@ -29,10 +29,12 @@ AI-Ollama ChatBot is a lightweight, locally hosted chatbot built using Python an
 ## 🚀 Features
 
 - 🔐 User authentication using **SQLite3**
-- 🧠 Local AI with **Ollama's LLM models**
-- 🌐 Web search powered by **SerpAPI** and **SerperAPI**
+- 🧠 Powered by **Google Gemini AI**
+
 - 💬 Interactive, real-time responses
 - 💻 Clean, modern interface using **Streamlit**
+- 📁 File upload support (PDF, DOCX, TXT, CSV, Excel)
+- 💾 Conversation history and export/import
 
 ---
 
@@ -40,19 +42,16 @@ AI-Ollama ChatBot is a lightweight, locally hosted chatbot built using Python an
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/DEVprasad7/AI-Ollama-ChatBot.git
-   cd AI-Ollama-ChatBot
+   git clone https://github.com/DEVprasad7/AI-Gemini-ChatBot.git
+   cd AI-Gemini-ChatBot
 
 2. Installing Dependencies:
    ```bash
    pip install -r requirements.txt
 
-3. Ollama LLM Installation:
-    Install Ollama On Your Local Machine : https://ollama.com
-
+3. Google Gemini API Setup:
+    Get your API key from: https://makersuite.google.com/app/apikey
+    
+    Create a `.env` file in the project root:
     ```bash
-    ollama pull <model.name>
-
-4. Starting Ollama:
-    ```bash
-    ollama serve
+    GOOGLE_API_KEY=your_google_api_key_here
